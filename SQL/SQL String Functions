@@ -1,0 +1,7 @@
+#### Question 1 [Left, RIGHT Function]
+
+select incidnt_num, left(date,10), right(date,17) 
+from tutorial.sf_crime_incidents_2014_01;
+
+
+#### Question 1 [Left, RIGHT Function]
