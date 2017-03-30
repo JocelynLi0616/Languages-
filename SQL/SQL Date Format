@@ -1,0 +1,60 @@
+### Questions 1:
+
+SELECT companies.permalink,
+       companies.founded_at_clean,
+       acquisitions.acquired_at_cleaned,
+       acquisitions.acquired_at_cleaned -
+         companies.founded_at_clean::timestamp AS time_to_acquisition
+  FROM tutorial.crunchbase_companies_clean_date companies
+  JOIN tutorial.crunchbase_acquisitions_clean_date acquisitions
+    ON acquisitions.company_permalink = companies.permalink
+ WHERE founded_at_clean IS NOT NULL
+ 
+ 
+ 
+ 
+ ### Questions 2: [Interval function]
+ 
+ The interval is defined using plain-English terms like ‘10 seconds’ or ‘5 months’. Also note that adding or 
+ subtracting a date column and an interval column results in another date column as in the above query.
+ 
+
+ SELECT companies.permalink,
+       companies.founded_at_clean,
+       companies.founded_at_clean::timestamp +
+         INTERVAL '1 week' AS plus_one_week
+  FROM tutorial.crunchbase_companies_clean_date companies
+ WHERE founded_at_clean IS NOT NULL
+ 
+ 
+ 
+ ### Question 3: [Now function]
+ 
+  SELECT companies.permalink,
+       companies.founded_at_clean,
+       NOW() - companies.founded_at_clean::timestamp AS founded_time_ago
+  FROM tutorial.crunchbase_companies_clean_date companies
+ WHERE founded_at_clean IS NOT NULL
+ 
+ 
+ ### question 4 ###
+ 
+ Write a query that counts the number of companies acquired within 3 years, 5 years, and 10 years of being 
+ founded (in 3 separate columns). Include a column for total companies acquired as well. Group by category 
+ and limit to only rows with a founding date.
+ 
+ select companies.category_code,
+ count (case when acquisitions.acquired_at_cleaned - companies.founded_at_clean::timestamp <= 
+        interval '3 years' then 1 else NULL end) as count_3y,
+ count (case when acquisitions.acquired_at_cleaned - companies.founded_at_clean::timestamp <= 
+        interval '5 years'  then 1 else NULL end) as count_5y,
+ count (case when acquisitions.acquired_at_cleaned - companies.founded_at_clean::timestamp <= 
+        interval '10 years' then 1 else NULL end) as count_10y,
+ count(*) as total_count
+
+FROM tutorial.crunchbase_companies_clean_date  companies
+JOIN tutorial.crunchbase_acquisitions_clean_date acquisitions
+ON acquisitions.company_permalink = companies.permalink
+WHERE founded_at_clean IS NOT NULL
+group by 1
+order by total_count ;
