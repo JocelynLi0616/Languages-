@@ -2,3 +2,102 @@ SQL Window Functions
 
 COUNT OVER ( [PARTITION BY <...>] [ORDER BY <....>] [<window_clause>] )
 SUM OVER ( [PARTITION BY <...>] [ORDER BY <....>] [<window_clause>] )
+
+#######################################################################################################################
+--Write a query modification of the above example query that shows the duration of each ride as a 
+--percentage of the total time accrued by riders from each start_terminal
+
+select 
+start_terminal, duration_seconds,
+sum(duration_seconds) over (partition by start_terminal) as start_terminal_sum,
+duration_seconds / (sum(duration_seconds) over (partition by start_terminal))*100 as pct_of_total_time
+FROM tutorial.dc_bikeshare_q1_2012  
+WHERE start_time < '2012-01-08'
+order by 1, 4 desc;
+
+#######################################################################################################################
+--[The usual suspects: SUM, COUNT, and AVG]
+SELECT start_terminal,
+       duration_seconds,
+       SUM(duration_seconds) OVER
+         (PARTITION BY start_terminal) AS running_total,
+       COUNT(duration_seconds) OVER
+         (PARTITION BY start_terminal) AS running_count,
+       AVG(duration_seconds) OVER
+         (PARTITION BY start_terminal) AS running_avg
+  FROM tutorial.dc_bikeshare_q1_2012
+ WHERE start_time < '2012-01-08';
+
+#######################################################################################################################
+---Alternatively, the same functions with ORDER BY:
+ SELECT start_terminal,
+       duration_seconds,
+       SUM(duration_seconds) OVER
+         (PARTITION BY start_terminal ORDER BY start_time)
+         AS running_total,
+       COUNT(duration_seconds) OVER
+         (PARTITION BY start_terminal ORDER BY start_time)
+         AS running_count,
+       AVG(duration_seconds) OVER
+         (PARTITION BY start_terminal ORDER BY start_time)
+         AS running_avg
+  FROM tutorial.dc_bikeshare_q1_2012
+ WHERE start_time < '2012-01-08';
+
+#######################################################################################################################
+ ---Write a query that shows a running total of the duration of bike rides (similar to the last example), 
+ ---but grouped by end_terminal, and with ride duration sorted in descending order.
+ 
+select end_terminal, duration_seconds, 
+      sum (duration_seconds) over (partition by end_terminal order by duration_seconds DESC ) as total_bike_rides
+FROM tutorial.dc_bikeshare_q1_2012
+WHERE start_time < '2012-01-08';
+
+#######################################################################################################################
+--ROW_NUMBER()
+select start_terminal,start_time, 
+row_number() over(partition by start_terminal order by start_time) as row_number
+FROM tutorial.dc_bikeshare_q1_2012
+WHERE start_time < '2012-01-08';
+
+#######################################################################################################################
+
+--rank() & dense_rank()
+select start_terminal,start_time, 
+row_number() over(order by start_time) as row_number,
+rank() over(order by start_time) as rank_number,
+dense_rank() over(order by start_time) as dense_rank_number
+FROM tutorial.dc_bikeshare_q1_2012
+WHERE start_time < '2012-01-08';
+
+#######################################################################################################################
+
+---Write a query that shows the 5 longest rides from each starting terminal, 
+--ordered by terminal, and longest to shortest rides within each terminal. 
+--Limit to rides that occurred before Jan. 8, 2012.
+
+select * 
+from (
+  select start_terminal, start_time,duration_seconds as trip_time,
+  dense_rank() over (partition by start_terminal order by duration_seconds DESC ) as rank
+  FROM tutorial.dc_bikeshare_q1_2012
+  where start_time <'2012-01-08'
+    ) sub
+where sub.rank <=5;
+
+#######################################################################################################################
+
+
+
+
+
+
+#######################################################################################################################
+
+#######################################################################################################################
+
+#######################################################################################################################
+
+
+
+#######################################################################################################################
