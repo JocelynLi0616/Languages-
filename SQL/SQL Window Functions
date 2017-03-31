@@ -1,0 +1,4 @@
+SQL Window Functions 
+
+COUNT OVER ( [PARTITION BY <...>] [ORDER BY <....>] [<window_clause>] )
+SUM OVER ( [PARTITION BY <...>] [ORDER BY <....>] [<window_clause>] )
