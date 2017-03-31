@@ -4,4 +4,71 @@ select incidnt_num, left(date,10), right(date,17)
 from tutorial.sf_crime_incidents_2014_01;
 
 
-#### Question 1 [Left, RIGHT Function]
+#### Question 2 [Left, RIGHT Function]
+SELECT incidnt_num,
+       date,
+       LEFT(date, 10) AS cleaned_date,
+       RIGHT(date, 17) AS cleaned_time
+  FROM tutorial.sf_crime_incidents_2014_01;
+ 
+ 
+####Question 3 [Trim Function]
+ 
+ select location, 
+       trim(both'()' from location) as new_location
+from tutorial.sf_crime_incidents_2014_01;
+  
+  
+####Question 4 [POSITION and STRPOS Functions]
+
+select descript,
+       position ('A' in descript) as a_position
+from tutorial.sf_crime_incidents_2014_01;
+
+  
+select descript,
+       strpos(descript, 'A') as a_position
+from tutorial.sf_crime_incidents_2014_01;
+
+
+####Question 5 [SUBSTR Functions]
+
+SELECT incidnt_num,
+       date,
+       SUBSTR(date, 4, 2) AS day
+  FROM tutorial.sf_crime_incidents_2014_01;
+  
+
+####Question 6 [CONCAT Functions]
+   select incidnt_num,day_of_week, left (date,10) as cleaned_date,
+         concat(day_of_week, ',',left (date,10) ) as day_and_date
+  from tutorial.sf_crime_incidents_2014_01;
+  
+
+#### Question 7 
+
+  --Write a query that separates the `location` field into separate fields for latitude and longitude.
+  --You can compare your results against the actual `lat` and `lon` fields in the table.
+  
+SELECT location,
+       TRIM(leading '(' FROM LEFT(location, POSITION(',' IN location) - 1)) AS lattitude,
+       TRIM(trailing ')' FROM RIGHT(location, LENGTH(location) - POSITION(',' IN location) ) ) AS longitude
+  FROM tutorial.sf_crime_incidents_2014_01
+  
+
+#### Question 8 
+
+--Concate the lat and lon fields to form a field that is identical to the location field.
+
+select lon, lat, concat('(',lon,lat,')') as location
+from tutorial.sf_crime_incidents_2014_01;
+
+#### Question 9
+--Write a query that creates a date column formatted YYYY-MM-DD.
+
+select date,
+substr(date,7,4) || '-' || left(date,2) || '-' || substr(date,4,2)
+from tutorial.sf_crime_incidents_2014_01;
+
+
+
