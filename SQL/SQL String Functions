@@ -71,4 +71,14 @@ substr(date,7,4) || '-' || left(date,2) || '-' || substr(date,4,2)
 from tutorial.sf_crime_incidents_2014_01;
 
 
+#### Question 10
+--Write a query that returns the `category` field, but with the first letter capitalized 
+--and the rest of the letters in lower-case.
+  
+select upper(left(category,1))||lower(substr(category,2,length(category))) as category
+from tutorial.sf_crime_incidents_2014_01;
+
+
+
+
 
