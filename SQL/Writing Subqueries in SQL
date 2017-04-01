@@ -40,12 +40,113 @@ WHERE sub.resolution = 'NONE';
   
 #######################################################################################################################
 
+--Write a query that selects all Warrant Arrests from the tutorial.sf_crime_incidents_2014_01 dataset, 
+--then wrap it in an outer query that filters out unresolved incidents.
+   select * 
+      from (
+            SELECT *
+              FROM tutorial.sf_crime_incidents_2014_01
+            where descript ='WARRANT ARREST'
+         ) sub 
+   WHERE sub.resolution = 'NONE'
+  
 #######################################################################################################################
+
+-- The following query returns all of the entries from the earliest date in the dataset
+select * 
+from tutorial.sf_crime_incidents_2014_01
+where date = (select min(date) from tutorial.sf_crime_incidents_2014_01);
+
+#######################################################################################################################
+-- two ways, same results.
+
+select * from tutorial.sf_crime_incidents_2014_01
+where date in 
+              (select date
+                from tutorial.sf_crime_incidents_2014_01
+              order by 1
+              limit 5);
+ 
+select * 
+from tutorial.sf_crime_incidents_2014_01 incidents
+join (SELECT date FROM tutorial.sf_crime_incidents_2014_01
+      ORDER BY date
+      LIMIT 5)sub
+on incidents.date=sub.date;
+
+#######################################################################################################################
+ 
+ --This can be particularly useful when combined with aggregations.
+--The following query ranks all of the results according to how many incidents were reported in a given day. 
+--It does this by ranking the total number of incidents each day in the inner query, then using those values to sort the outer query
+ 
+ select sub.incidents as incients_that_day, incidents.*
+ from tutorial.sf_crime_incidents_2014_01 incidents
+ join (
+        select date, count(incidnt_num) as incidents
+        from tutorial.sf_crime_incidents_2014_01 
+        group by 1
+      ) sub
+  on incidents.date=sub.date
+  order by sub.incidents desc,time
+#######################################################################################################################
+
+--Write a query that displays all rows from the three categories with the fewest incidents reported.
+
+SELECT incidents.*,
+       sub.count AS total_incidents_in_category
+  FROM tutorial.sf_crime_incidents_2014_01 incidents
+  JOIN (
+        SELECT category,
+               COUNT(*) AS count
+          FROM tutorial.sf_crime_incidents_2014_01
+         GROUP BY 1
+         ORDER BY 2
+         LIMIT 3
+       ) sub
+    ON sub.category = incidents.category
 
 #######################################################################################################################
 
+---Subqueries and UNIONs
+
+select count (sub.*) as total_rows
+from 
+    (
+    SELECT * FROM tutorial.crunchbase_investments_part1
+      UNION ALL
+    SELECT * FROM tutorial.crunchbase_investments_part2
+    ) sub;
+    
 #######################################################################################################################
 
+--Write a query that ranks investors from the combined dataset above by the total number of investments they have made.
+
+ select sub.investor_name, count(sub.company_name)
+ from 
+      (
+            SELECT investor_name, company_name FROM tutorial.crunchbase_investments_part1
+            union all
+            SELECT investor_name, company_name FROM tutorial.crunchbase_investments_part2
+       ) sub
+ group by 1
+ order by 2 desc;
+
 #######################################################################################################################
-#######################################################################################################################
+
+--Write a query that does the same thing as in the previous problem, except only for companies that are still operating. 
+--Hint: operating status is in tutorial.crunchbase_companies.
+ select sub.investor_name, count(sub.company_name)
+ from tutorial.crunchbase_companies crunchbase
+ join 
+      (
+        SELECT investor_name, company_name, company_permalink FROM tutorial.crunchbase_investments_part1
+        union all
+         SELECT investor_name, company_name, company_permalink FROM tutorial.crunchbase_investments_part2
+      ) sub 
+ on sub.company_permalink = crunchbase.permalink
+ where crunchbase.status='operating'
+ group by 1
+ order by 2 desc;
+  
 #######################################################################################################################
