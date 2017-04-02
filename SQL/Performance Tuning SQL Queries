@@ -1,0 +1,60 @@
+
+The way to make a query run faster is to reduce the number of calculations that the software (and therefore hardware) must perform. 
+
+• Table size: If your query hits one or more tables with millions of rows or more, it could affect performance
+
+• Joins: If your query joins two tables in a way that substantially increases the row count of the result set, your query is likely to be slow.
+
+• Aggregations: Combining multiple rows to produce a result requires more computation than simply retrieving those rows.
+
+
+
+
+Solutions to better improve the SQL performance 
+
+• Reducing table size
+
+Filtering the data to include only the observations you need can dramatically improve query speed.
+
+• Making joins less complicated
+
+In a way, this is an extension of the previous tip. In the same way that it’s better to reduce data at a point in the query that is executed early, it’s better to reduce table sizes before joining them.
+
+From
+
+
+• EXPLAIN
+
+EXPLAIN -- show the execution plan of a statement.
+
+You can add EXPLAIN at the beginning of any (working) query to get a sense of how long it will take. It’s not perfectly accurate, but it’s a useful tool. 
+
+
+  
+#######################################################################################################################
+---Making joins less complicated
+explain
+SELECT teams.conference AS conference,
+       players.school_name,
+       COUNT(1) AS players
+  FROM benn.college_football_players players
+  JOIN benn.college_football_teams teams
+    ON teams.school_name = players.school_name
+ GROUP BY 1,2
+
+--Here is a better solution 
+
+SELECT teams.conference,
+       sub.*
+  FROM (
+        SELECT players.school_name,
+               COUNT(*) AS players
+          FROM benn.college_football_players players
+         GROUP BY 1
+       ) sub
+  JOIN benn.college_football_teams teams
+  ON teams.school_name = sub.school_name
+
+  
+#######################################################################################################################
+  
